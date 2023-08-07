@@ -17,7 +17,7 @@ import { JoiValidationPipe } from './joi-validation.pipe';
 import { createUserSchema } from './userValidateSchema';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 @Controller('/users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -57,12 +57,13 @@ export class UserController {
     return this.userService.deleteUser(email);
   }
 
-  @Patch('roles/:email')
+  @Post('roles/:email')
   async assignRoleToUser(
     @Param('email') email: string,
     @Body('roleName') roleName: string,
   ) {
-    return this.userService.assignUserRole(email, roleName);
+    //return await this.userService.assignUserRole(roleName);
+    return this.userService.updateUserRole(email, roleName)
   }
 
   // Tempo

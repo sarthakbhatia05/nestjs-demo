@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   ObjectId,
   ObjectIdColumn,
   OneToMany,
@@ -12,7 +13,7 @@ import { UserRole } from './roles.entities';
 @Entity({ name: 'users' })
 export class User {
   @ObjectIdColumn()
-  id: ObjectId;
+  _id: ObjectId;
 
   @Column({ unique: true })
   email: string;
@@ -29,9 +30,8 @@ export class User {
   // @OneToMany(() => UserRole, (role) =>role.user)
   // roles: Role[]
 
-  @OneToMany(() => UserRole, (userRole) => userRole.user, { cascade: true })
-  @JoinColumn()
-  roles: UserRole[];
+  @ManyToOne(() => UserRole, (userRole) => userRole.user)
+  roles: UserRole 
 
   // @OneToOne(() => UserData, userData => userData.user, { cascade: true })
   // @JoinColumn()

@@ -1,4 +1,4 @@
-import { Entity, ObjectIdColumn, ObjectId, Column, ManyToOne } from 'typeorm';
+import { Entity, ObjectIdColumn, ObjectId, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './user.entities';
 
 @Entity({ name: 'roles' })
@@ -9,6 +9,7 @@ export class UserRole {
   @Column()
   roleName: string;
 
-  @ManyToOne(() => User, (user) => user.roles)
-  user: User;
+  @OneToMany(() => User, (user) => user.roles, { cascade: true })
+  @JoinColumn()
+  user: User[];
 }

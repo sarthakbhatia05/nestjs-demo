@@ -5,7 +5,7 @@ import { UserModule } from './users/users.module';
 import { User } from './Entities/user.entities';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { UserData } from './Entities/userData.entities';
+//import { UserData } from './Entities/userData.entities';
 import { UserRole } from './Entities/roles.entities';
 import { Product } from './Entities/product.entities';
 import { Company } from './Entities/company.entities';
@@ -17,7 +17,7 @@ import { Company } from './Entities/company.entities';
     TypeOrmModule.forRoot({
       type: 'mongodb',
       url: 'mongodb://127.0.0.1:27017/nestjs_demo',
-      entities: [User, UserData, UserRole, Product, Company],
+      entities: [User, UserRole, Product, Company],
       synchronize: true,
     }),
     UserModule,

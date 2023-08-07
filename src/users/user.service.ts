@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository, Repository } from 'typeorm';
 import { UserDetailsDto } from './dto/userDetails.dto';
@@ -12,7 +12,8 @@ import { Product } from 'src/Entities/product.entities';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: MongoRepository<User>,
-    @InjectRepository(UserRole) private roleRepository: Repository<UserRole>,
+    @InjectRepository(UserRole)
+    private roleRepository: MongoRepository<UserRole>,
     @InjectRepository(Company) private companyRepo: Repository<Company>,
   ) {}
 
@@ -30,14 +31,14 @@ export class UserService {
       .toArray();
 
     console.log(user1);
-    const user = await this.userRepository.findOne({ where: { email: email } });
-    const role1 = new UserRole();
-    role1.roleName = 'Admin';
-    role1.user = user;
+    // const user = await this.userRepository.findOne({ where: { email: email } });
+    // const role1 = new UserRole();
+    // role1.roleName = 'Admin';
+    // role1.user = user;
 
-    this.roleRepository.save(role1);
+    // this.roleRepository.save(role1);
 
-    if (!user) {
+    if (!user1) {
       throw new BadRequestException({
         error: 'No User Found !',
       });
@@ -56,7 +57,7 @@ export class UserService {
       });
     }
     const password = await bcrypt.hash(userDetails.password, 10);
-    const roles = [];
+    const roles = undefined;
     const { email, name } = userDetails;
     const newUser = await this.userRepository.create({
       email,
@@ -109,50 +110,102 @@ export class UserService {
   //tempo
 
   async addRole(roleName: string) {
-    const newRole = this.roleRepository.create({ roleName });
+    const user = [];
+    const newRole = this.roleRepository.create({ roleName, user });
     const save = await this.roleRepository.save(newRole);
     return save;
   }
 
   async assignUserRole(
-    email: string,
+    // email: string,
     roleName: string,
   ): Promise<any | undefined> {
     // const user = await this.userRepository.findOne({
     //   where: { email: email },
     //   relations: ['roles'],
     // });
-
-    const user = await this.userRepository
-      .aggregate([
-        {
-          $match: { email: email },
-        },
-      ])
-      .toArray();
-
-    if (!user) {
-      throw new BadRequestException({
-        error: 'User does not exist !',
-      });
-    }
-    console.log(user);
-
-    // const role1 = new UserRole();
+    // const user = await this.userRepository
+    //   .aggregate([
+    //     {
+    //       $match: { email: email },
+    //     },
+    //   ])
+    //   .toArray();
+    // if (!user) {
+    //   throw new BadRequestException({
+    //     error: 'User does not exist !',
+    //   });
+    // }
+    // console.log(user);
+    // const role1 = new UserRole()
+    // role1.roleName = roleName
+    // role1.user = undefined
+    // role1.user = user[0]
+    //role1.user = user[0]
+    // return this.roleRepository.save(role1)
+    //return this.roleRepository.save(role1)
     // role1.roleName = roleName;
     // role1.user = user;
     // const role2 = new UserRole();
     // role2.roleName = 'Admin2';
     // role2.user = user;
-    // user.roles.push(role1, role2);
-    // console.log(role1);
-
+    // user[0].roles.push(role1)
+    //console.log(role1);
     //user.roles.push(role);
     // console.log(user.roles);
-    // return await this.userRepository.save(user);
-    return user
-
+    //console.log(user[0].roles)
+    //return await this.userRepository.save(user);
+    // return user
     //return user;
+  }
+
+  async updateUserRole(email: string, roleName: string) {
+    const user = await this.userRepository.findOne({ where: { email: email } });
+
+    const role = await this.roleRepository
+      .aggregate([
+        {
+          $match: { roleName: roleName },
+        },
+        {
+          $project: { _id: 0 },
+        },
+      ])
+      .toArray();
+    
+    console.log(role)
+    if (role.length == 0) {
+      throw new BadRequestException({
+        error: 'No role named ' + roleName,
+      });
+    }
+    const roles = role[0].user;
+    roles.push(user);
+    console.log(roles);
+    // console.log(role[0])
+    // roles.push(role[0]);
+    // console.log(roles)
+    //user[0].roles.push(role[0])
+    // console.log(role[0]);
+    // console.log(user);
+    // role[0].user.push(user)
+
+    this.roleRepository.updateOne(
+      { roleName: roleName },
+      { $set: { user: roles } },
+    );
+    const role1 = await this.roleRepository.findOne({
+      where: { roleName: roleName },
+    });
+
+    this.userRepository.updateOne(
+      { _id: user._id },
+      { $set: { roles: role1 } },
+    );
+    //role[0].user = user[0]
+
+    //this.roleRepository.save(role[0])
+    return this.userRepository.save(user);
   }
 
   async addCompany() {
