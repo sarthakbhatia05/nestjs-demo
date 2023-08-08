@@ -17,5 +17,4 @@ export class Product {
 
   //   @ManyToMany(() => Company, (company) => company.products)
   //   company: Company;
-
 }

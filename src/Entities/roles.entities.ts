@@ -1,4 +1,12 @@
-import { Entity, ObjectIdColumn, ObjectId, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  ObjectIdColumn,
+  ObjectId,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entities';
 
 @Entity({ name: 'roles' })

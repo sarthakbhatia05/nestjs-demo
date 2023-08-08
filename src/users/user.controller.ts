@@ -63,7 +63,7 @@ export class UserController {
     @Body('roleName') roleName: string,
   ) {
     //return await this.userService.assignUserRole(roleName);
-    return this.userService.updateUserRole(email, roleName)
+    return this.userService.updateUserRole(email, roleName);
   }
 
   // Tempo

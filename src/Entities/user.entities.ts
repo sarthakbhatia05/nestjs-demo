@@ -31,7 +31,7 @@ export class User {
   // roles: Role[]
 
   @ManyToOne(() => UserRole, (userRole) => userRole.user)
-  roles: UserRole 
+  roles: UserRole;
 
   // @OneToOne(() => UserData, userData => userData.user, { cascade: true })
   // @JoinColumn()

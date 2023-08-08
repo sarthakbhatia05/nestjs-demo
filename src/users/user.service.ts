@@ -72,14 +72,36 @@ export class UserService {
   }
 
   async deleteUser(email: string) {
-    const doesExist = await this.userRepository.findOne({
-      where: { email: email },
-    });
-    if (!doesExist) {
+    // const doesExist = await this.userRepository.findOne({
+    //   where: { email: email },
+    // });
+
+    const user = await this.userRepository
+      .aggregate([
+        {
+          $match: { email: email },
+        },
+      ])
+      .toArray();
+    if (user.length == 0) {
       throw new BadRequestException({
         error: 'User does not exist !',
       });
     }
+    const userRole = user[0].roles.roleName;
+    const roles = await this.roleRepository.updateOne(
+      {
+        roleName: userRole,
+      },
+      {
+        $pull: {
+          user: { email: email },
+        },
+      },
+    );
+
+    roles[0].user.p;
+
     const deleteUser = await this.userRepository.delete({ email });
     //console.log(deleteUser);
 
@@ -103,7 +125,26 @@ export class UserService {
     return user1;
   }
 
-  updateUserByEmail(email: string, userDetails: UserDetailsDto) {
+  async updateUserByEmail(email: string, userDetails: UserDetailsDto) {
+    const userRole = await this.userRepository
+      .aggregate([
+        {
+          $match: { email: email },
+        },
+      ])
+      .toArray();
+    await this.roleRepository.updateOne(
+      {
+        roleName: userRole[0].roles.roleName,
+        'user.email': email,
+      },
+      {
+        $set: {
+          'user.$.email': userDetails.email,
+          'user.$.name': userDetails.name,
+        },
+      },
+    );
     return this.userRepository.update({ email }, { ...userDetails });
   }
 
@@ -172,8 +213,7 @@ export class UserService {
         },
       ])
       .toArray();
-    
-    console.log(role)
+
     if (role.length == 0) {
       throw new BadRequestException({
         error: 'No role named ' + roleName,

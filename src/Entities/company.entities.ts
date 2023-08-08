@@ -13,12 +13,11 @@ export class Company {
   description: string;
 
   @Column(() => Product)
-  products: Product[]
+  products: Product[];
 
-//   @ObjectIdColumn({ name: 'product', array: true })
-//   products: ObjectId[] | Product[]
+  //   @ObjectIdColumn({ name: 'product', array: true })
+  //   products: ObjectId[] | Product[]
 
-
-//   @OneToMany(() => Product, (product) => product.company, { cascade: true })
-//   products: Product[];
+  //   @OneToMany(() => Product, (product) => product.company, { cascade: true })
+  //   products: Product[];
 }
