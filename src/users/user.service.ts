@@ -25,7 +25,22 @@ export class UserService {
     const user1 = await this.userRepository
       .aggregate([
         {
-          $match: { email: email },
+          $lookup: {
+            from: 'roles',
+            localField: 'roles',
+            foreignField: '_id',
+            as: 'roles',
+          },
+        },
+        {
+          $match: {
+            email: email,
+          },
+        },
+        {
+          $project: {
+            'roles.user': 0,
+          },
         },
       ])
       .toArray();
@@ -89,18 +104,18 @@ export class UserService {
       });
     }
     const userRole = user[0].roles.roleName;
-    const roles = await this.roleRepository.updateOne(
-      {
-        roleName: userRole,
-      },
-      {
-        $pull: {
-          user: { email: email },
-        },
-      },
-    );
+    // const roles = await this.roleRepository.updateOne(
+    //   {
+    //     roleName: userRole,
+    //   },
+    //   {
+    //     $pull: {
+    //       user: { email: email },
+    //     },
+    //   },
+    // );
 
-    roles[0].user.p;
+    //roles[0].user.p;
 
     const deleteUser = await this.userRepository.delete({ email });
     //console.log(deleteUser);
@@ -220,7 +235,7 @@ export class UserService {
       });
     }
     const roles = role[0].user;
-    roles.push(user);
+    roles.push(user._id);
     console.log(roles);
     // console.log(role[0])
     // roles.push(role[0]);
@@ -240,7 +255,7 @@ export class UserService {
 
     this.userRepository.updateOne(
       { _id: user._id },
-      { $set: { roles: role1 } },
+      { $set: { roles: role1.id } },
     );
     //role[0].user = user[0]
 
@@ -274,5 +289,38 @@ export class UserService {
       relations: { products: true },
     });
     return newData;
+  }
+
+  fetchAllRoles() {
+    return this.roleRepository
+      .aggregate([
+        {
+          $unwind: '$user',
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $project: {
+            'user.roles': 0,
+          },
+        },
+        // {
+        //   $unwind: '$userDetails',
+        // },
+        // {
+        //   $group: {
+        //     _id: '$_id',
+        //     user: { $push: '$userDetails' },
+        //     // ... other fields you want to keep in the result
+        //   },
+        // },
+      ])
+      .toArray();
   }
 }

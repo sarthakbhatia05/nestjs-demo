@@ -77,4 +77,9 @@ export class UserController {
   companyDetails() {
     return this.userService.addCompany();
   }
+
+  @Get('fetchroles')
+  fetchRoles() {
+    return this.userService.fetchAllRoles();
+  }
 }

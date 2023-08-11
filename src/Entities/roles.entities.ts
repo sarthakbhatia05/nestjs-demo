@@ -19,5 +19,5 @@ export class UserRole {
 
   @OneToMany(() => User, (user) => user.roles, { cascade: true })
   @JoinColumn()
-  user: User[];
+  user: ObjectId[];
 }
